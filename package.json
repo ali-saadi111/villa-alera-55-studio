@@ -1,0 +1,15 @@
+{
+  "name": "villa-alera-55-studio",
+  "private": true,
+  "type": "module",
+  "description": "A browser 3D layout studio for Villa Alera 55: walk the house, try furniture, and mark up views with notes.",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node tests/building.test.mjs && node tests/furniture.test.mjs && node tests/wallclash.mjs",
+    "test:browser": "node build.mjs && node tests/e2e.mjs && node tests/notes.e2e.mjs"
+  },
+  "dependencies": {
+    "esbuild": "^0.24.0",
+    "three": "^0.169.0"
+  }
+}
