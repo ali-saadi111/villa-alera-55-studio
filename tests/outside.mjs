@@ -1,0 +1,18 @@
+import { routeCdn } from './cdn.mjs';
+import http from 'http'; import fs from 'fs'; import path from 'path'; import { chromium } from './pw.mjs';
+const OUT = path.resolve('tests/out'); fs.mkdirSync(OUT, { recursive: true });
+const server = http.createServer((q, r) => { r.writeHead(200, { 'content-type': 'text/html' }); r.end(fs.readFileSync('dist/test.html')); });
+await new Promise((r) => server.listen(0, r));
+const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--disable-accelerated-2d-canvas'] });
+const p = await b.newPage({ viewport: { width: 1280, height: 800 } });
+const errors = []; p.on('pageerror', (e) => errors.push(e.message)); p.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+await routeCdn(p);
+await p.goto('http://localhost:' + server.address().port + '/');
+await p.waitForFunction(() => window.__villa?.timings?.firstFrames, null, { timeout: 120000 });
+await p.waitForTimeout(4000);
+await p.screenshot({ path: path.join(OUT, 'outside-front.png') });
+await p.evaluate(() => { const a = window.__villa, T = a.stage.controls.target.constructor; a.stage.flyTo(new T(-22, 12, 24), new T(-0.5, 0.5, 2), 10); });
+await p.waitForTimeout(2500);
+await p.screenshot({ path: path.join(OUT, 'outside-back.png') });
+console.log('errors', errors.length ? errors.join('\n') : 'none');
+await b.close(); server.close();

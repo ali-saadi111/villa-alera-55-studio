@@ -1,0 +1,13 @@
+import { routeCdn } from './cdn.mjs';
+import path from 'path'; import http from 'http'; import fs from 'fs';
+import { chromium } from './pw.mjs';
+const server = http.createServer((q, r) => { r.writeHead(200, { 'content-type': 'text/html' }); r.end(fs.readFileSync('dist/test.html')); });
+await new Promise((r) => server.listen(0, r));
+const b = await chromium.launch({ args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist', '--disable-accelerated-2d-canvas'] });
+const p = await b.newPage({ viewport: { width: 1280, height: 800 } });
+await routeCdn(p);
+const t0 = Date.now();
+await p.goto('http://localhost:' + server.address().port + '/');
+await p.waitForFunction(() => window.__villa?.timings?.firstFrames, null, { timeout: 120000 });
+console.log('nav', JSON.stringify(await p.evaluate(() => { const n = performance.getEntriesByType('navigation')[0]; return { dcl: Math.round(n.domContentLoadedEventEnd), load: Math.round(n.loadEventEnd), resp: Math.round(n.responseEnd) }; }))); console.log("wall", Date.now() - t0, JSON.stringify(await p.evaluate(() => window.__villa.timings)), "programs", await p.evaluate(() => window.__villa.stage.renderer.info.programs.length), "calls", await p.evaluate(() => window.__villa.stage.renderer.info.render.calls), "tris", await p.evaluate(() => window.__villa.stage.renderer.info.render.triangles));
+await b.close(); server.close();
