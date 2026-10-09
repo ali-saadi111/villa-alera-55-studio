@@ -1,0 +1,20 @@
+<title>Villa Alera 55 Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Instrument+Serif&display=swap">
+<style>/*CSS*/</style>
+<div id="app">
+  <div id="stage"></div>
+  <div id="boot"><div><div class="bt">Villa Alera 55</div><div class="bs">Building the house…</div></div></div>
+</div>
+<script type="importmap">/*IMPORTMAP*/</script>
+<script>
+  // if the 3D engine can't be fetched, say so instead of waiting forever
+  setTimeout(function () {
+    if (window.__villa && window.__villa.stage) return;
+    var b = document.getElementById('boot');
+    if (b) { b.className = 'err'; b.textContent = 'The 3D engine (three.js from cdn.jsdelivr.net) didn’t load. Check your connection and reload the page.'; }
+  }, 25000);
+</script>
+<script type="module">/*JS*/</script>
